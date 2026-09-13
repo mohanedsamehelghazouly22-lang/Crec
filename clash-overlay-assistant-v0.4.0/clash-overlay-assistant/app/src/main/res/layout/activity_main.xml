@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:fillViewport="true" android:background="#0B0E14" android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout android:orientation="vertical" android:padding="24dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+<TextView android:text="CLASH OVERLAY" android:textColor="#FFFFFF" android:textSize="28sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:text="Local visual assistant · never controls the game" android:textColor="#9BA4B5" android:textSize="14sp" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<Button android:id="@+id/startButton" android:text="START ASSISTANT" android:layout_marginTop="28dp" android:layout_width="match_parent" android:layout_height="56dp"/>
+<Button android:id="@+id/stopButton" android:text="STOP" android:layout_marginTop="10dp" android:layout_width="match_parent" android:layout_height="56dp"/>
+<TextView android:id="@+id/statusText" android:text="Status: stopped" android:textColor="#FFFFFF" android:textSize="16sp" android:layout_marginTop="24dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+<TextView android:text="Privacy\n• Screen frames are processed on-device.\n• No taps, gestures, card placement, memory injection, or game automation.\n• Recognition requires a bundled TensorFlow Lite model; until a trained model is supplied, the app reports MODEL_UNAVAILABLE rather than guessing." android:textColor="#9BA4B5" android:textSize="14sp" android:layout_marginTop="24dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+</LinearLayout></ScrollView>

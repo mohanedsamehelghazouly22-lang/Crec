@@ -1,0 +1,17 @@
+# One card id per classifier output index. Replace this file together with card_classifier.tflite.
+knight
+archers
+fireball
+arrows
+hog-rider
+musketeer
+goblins
+skeletons
+golden-knight
+skeleton-king
+archer-queen
+mighty-miner
+monk
+little-prince
+boss-bandit
+goblinstein
