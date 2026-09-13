@@ -10,33 +10,132 @@ import android.os.Handler
 import android.os.HandlerThread
 
 class ScreenCaptureSource(
-    projection: MediaProjection,
+    private val projection: MediaProjection,
     width: Int,
     height: Int,
     densityDpi: Int,
     private val onFrame: (Image) -> Unit
 ) : ImageReader.OnImageAvailableListener {
-    private val thread = HandlerThread("capture-frames").apply { start() }
-    private val handler = Handler(thread.looper)
-    private val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 3)
-    private val display: VirtualDisplay
+
+    private val thread =
+        HandlerThread("capture-frames").apply {
+            start()
+        }
+
+    private val handler =
+        Handler(thread.looper)
+
+    private val reader =
+        ImageReader.newInstance(
+            width,
+            height,
+            PixelFormat.RGBA_8888,
+            3
+        )
+
+    private var display: VirtualDisplay? = null
+    private var closed = false
+
+    private val projectionCallback =
+        object : MediaProjection.Callback() {
+
+            override fun onStop() {
+                closeInternal(
+                    unregisterCallback = false
+                )
+            }
+        }
 
     init {
-        reader.setOnImageAvailableListener(this, handler)
-        display = projection.createVirtualDisplay(
-            "ClashOverlayCapture", width, height, densityDpi,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            reader.surface, null, handler
+
+        // REQUIRED on Android 14+
+        // Must happen before createVirtualDisplay()
+        projection.registerCallback(
+            projectionCallback,
+            handler
         )
+
+        reader.setOnImageAvailableListener(
+            this,
+            handler
+        )
+
+        display =
+            projection.createVirtualDisplay(
+                "ClashOverlayCapture",
+                width,
+                height,
+                densityDpi,
+                DisplayManager
+                    .VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                reader.surface,
+                null,
+                handler
+            )
     }
 
-    override fun onImageAvailable(r: ImageReader) {
-        r.acquireLatestImage()?.let { image ->
-            try { onFrame(image) } catch (_: Throwable) { image.close() }
+    override fun onImageAvailable(
+        reader: ImageReader
+    ) {
+
+        if (closed) return
+
+        reader.acquireLatestImage()?.let { image ->
+
+            try {
+
+                onFrame(image)
+
+            } catch (_: Throwable) {
+
+                image.close()
+            }
         }
     }
 
     fun close() {
-        display.release(); reader.close(); thread.quitSafely()
+
+        closeInternal(
+            unregisterCallback = true
+        )
+    }
+
+    private fun closeInternal(
+        unregisterCallback: Boolean
+    ) {
+
+        if (closed) return
+
+        closed = true
+
+        if (unregisterCallback) {
+
+            runCatching {
+
+                projection.unregisterCallback(
+                    projectionCallback
+                )
+            }
+        }
+
+        runCatching {
+            display?.release()
+        }
+
+        display = null
+
+        runCatching {
+
+            reader.setOnImageAvailableListener(
+                null,
+                null
+            )
+        }
+
+        runCatching {
+            reader.close()
+        }
+
+        thread.quitSafely()
     }
 }
